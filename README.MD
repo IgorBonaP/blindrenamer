@@ -19,8 +19,8 @@ for oldname, newname in result.items():
 
 revertresult = renamingmethods.undolastrename(pathtofiles)
 
-for names in revertresult["success"]:
-    print("{name} was sucessfully reverted to its original name.")
+for name in revertresult["success"]:
+    print("{name} was sucessfully reverted to its original name.".format(name=name))
 ```
 #### As a CLI application
 Run **main.py** in python interpreter and follow the instructions in the prompt.
