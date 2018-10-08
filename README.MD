@@ -1,4 +1,5 @@
 # BLINDRENAMER
+Python version: 3.7.0
 
 This is both a CLI application and a python module for blindly renaming files of a given extension in a directory retaining the ability to revert the renaming operation.
 Currently, it can only rename files of one given extension at a time retaining the names relation of the last renaming operation run on the directory.
