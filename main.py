@@ -1,8 +1,15 @@
+import configparser
+import argparse
+
 from ui import UI
 from renamingmethods import blindrename, undolastrename
 from configs import __email__
 
 def main(*args,**kwargs)->None:
+    configfile = kwargs.get("configfile")
+    if configfile:
+        return useconfig(configfile)
+
     ui = UI()
     operation = None
     dirset = False
@@ -48,5 +55,25 @@ def main(*args,**kwargs)->None:
                 input("Press ENTER to finish.")
                 return
 
+def useconfig(inifilepath: str)->None:
+    cfg = configparser.ConfigParser()
+    try:
+        cfg.read(inifilepath)
+        directory = cfg.get("ALL", "directory")
+        ext = cfg.get("ALL", "ext")
+        save = cfg.getboolean("ALL", "save", fallback=True)
+
+        if blindrename(directory, ext, save):
+            input("Files renamed. Press Enter to finish.")
+    except Exception as e:
+        print(e.args[1])
+
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-ini", help="This is the path to the .ini file with blindrenamer configs.", type=str)
+    args = parser.parse_args()
+    
+    if args.ini:
+        main(configfile=args.ini)
+    else:
+        main()

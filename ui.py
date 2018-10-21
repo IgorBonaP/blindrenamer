@@ -72,7 +72,7 @@ class UI():
             
     def paramsummary(self)-> None:
         
-        input( "\n\n### Selected settings:"
+        input( "\n\n### SETTINGS"
             "\n### Directory: {directory}"
             "\n### Extension affected: {ext}"
             "\n### Save names relation? {save}"
