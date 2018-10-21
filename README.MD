@@ -34,6 +34,6 @@ ext = .targetextension
 save = True # If you want to be able to revert the rename operation set it to True.
 ```
 In the command prompt run **main.py** with the python interpreter or **main.exe** with the **-ini** argument containing the path to the mentioned .ini file.
-'''
+```
 C:\blindrenamer>main -ini "path/to/inifile"
-'''
+```
