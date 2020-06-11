@@ -1,14 +1,31 @@
 import os
-
 from stringutils import randomstring
 from configs import SAVEDICTNAME
 from exceptions import (TargetExtensionError,
                         ExhaustedNamesError)
+from files_iter import get_file_iterator
+
+def serialrename(basename: str, pathstring: str, ext: str, subtree:bool, savedict=False)->dict:
+    '''Renames files of a given extension in a directory using title as the base filename followed by a serial number.
+    By default it returns a dict with keys being the original names and values being the new
+    names if successful.
+    ext = file extension to be affected
+    If savedict is set to True a names_table tabseparated file is saved with the names relation is saved in
+    patstring directory.'''
+    renamingdict = {}
+    for count, f in enumerate(get_file_iterator(pathstring, subtree, ext=ext)):
+        newname = f.parent.joinpath(f"{basename}_{count}{ext}")
+        os.rename(str(f), newname)
+        renamingdict.update({f.name: newname.name})
+    if savedict and renamingdict:
+        write_names_relation_table(pathstring, renamingdict)
+    return renamingdict
+
 
 def blindrename(pathstring: str, ext: str, savedict=False)-> dict:
-    '''Blindly renames files of a given extension in a directory to a 4 random letters string. By default it 
-    returns a dict with keys being the original names and values being the new 
-    names if successful. 
+    '''Blindly renames files of a given extension in a directory to a 4 random letters string. By default it
+    returns a dict with keys being the original names and values being the new
+    names if successful.
     ext = file extension to be affected
     If savedict is set to True a names_table tabseparated file is saved with the names relation is saved in
     patstring directory.'''
@@ -37,14 +54,22 @@ def blindrename(pathstring: str, ext: str, savedict=False)-> dict:
                 renamingdict.update(
                     {f: "{newname}{ext}".format(newname=randomname, ext=ext)})
                 break
+
     if savedict and renamingdict:
-        dictfile = os.path.join(pathstring, SAVEDICTNAME)
-        with open(dictfile, "w") as names_table:
-            names_table.write("OLD NAME\tNEW NAME\n")
-            for old_name, new_name in renamingdict.items():
-                names_table.write("{old}\t{new}\n".format(
-                    old=old_name, new=new_name))
+        write_names_relation_table(pathstring, renamingdict)
+
     return renamingdict
+
+def write_names_relation_table(pathstring:str, renamingdict:dict):
+    '''
+    Writes a txt file with the name relation contained in the renaming dict.
+    '''
+    dictfile = os.path.join(pathstring, SAVEDICTNAME)
+    with open(dictfile, "w") as names_table:
+        names_table.write("OLD NAME\tNEW NAME\n")
+        for old_name, new_name in renamingdict.items():
+            names_table.write("{old}\t{new}\n".format(
+                old=old_name, new=new_name))
 
 def undolastrename(pathstring: str)-> dict:
     '''Restore original name of files in pathstring directory according to names table in
@@ -59,7 +84,7 @@ def undolastrename(pathstring: str)-> dict:
 
     if not os.path.isdir(pathstring):
         raise FileNotFoundError("{pathstring} is an invalid directory or does not exists".format(pathstring=pathstring))
-    
+
     pathtosavedict = os.path.join(pathstring, SAVEDICTNAME)
 
     with open(pathtosavedict, "r") as namesdict:
@@ -68,12 +93,12 @@ def undolastrename(pathstring: str)-> dict:
             "success":[],
             "notfound": [],
             "conflict": []
-        } 
+        }
         for l in namesdict:
             names = l[:-1].split("\t")
             try:
-                originalname = os.path.join(pathstring, names[0])
-                actualname = os.path.join(pathstring, names[1])
+                originalname = os.path.join(pathstring, names[0].trim())
+                actualname = os.path.join(pathstring, names[1].trim())
                 os.rename(actualname, originalname)
             except (FileExistsError, PermissionError):
                 result["conflict"].append(originalname)
@@ -91,6 +116,10 @@ def undolastrename(pathstring: str)-> dict:
         return result
 
 if __name__ == "__main__":
-    files = r"D:\OneDrive - The University of Queensland\Code learning\code-sandbox\Python\misc_utils\blindrename\test"
-    result = undolastrename(files) #blindrename(files, ".txt",savedict=True)
+    from stringutils import randomstring
+    files = r"test"
+    basename = randomstring(4)
+    ext = ".txt"
+    subtree = False
+    result = serialrename(basename, files, ".txt", subtree, savedict=True)
     print(result)
