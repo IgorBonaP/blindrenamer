@@ -7,6 +7,8 @@ Currently, it can only rename files of one given extension at a time retaining t
 ### Usage
 #### As a python module
 Simply import the renaming methods from the blindrenamer package
+Methods are documented with doc strings.
+Main renaming mathods are blindrename and serialrename.
 ```python
 from blindrenamer import renamingmethods
 
@@ -22,7 +24,7 @@ revertresult = renamingmethods.undolastrename(pathtofiles)
 for name in revertresult["success"]:
     print("{name} was sucessfully reverted to its original name.".format(name=name))
 ```
-#### As a CLI application
+#### As a CLI application (currently only supporting blindrenaming, will add serialrename in the future)
 ##### With an user-interface
 Run **main.py** in python interpreter or **main.exe** and follow the instructions in the prompt.
 ##### Headless
